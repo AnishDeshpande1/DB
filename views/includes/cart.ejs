@@ -1,0 +1,49 @@
+<%- include('head.ejs') %>
+<link rel="stylesheet" href="/css/cart.css">
+</head>
+
+<body>
+<%- include('navigation.ejs') %>
+
+<main>
+    
+    <h2 class="info">Credits availabe: <%- credits %></h2>
+   
+
+    
+        <div class="grid">
+            
+            <%for(var i = 0; i<cart_arr.length; i++){ %>
+        	<% if (cart_arr[i].quantity>0) { %>
+                <article class="card product-item">
+                    <header class="card__header">
+                        <h1 class="product__title">
+				<%- cart_arr[i].title %>
+                        </h1>
+                    </header>
+                    <div>
+                        <img src=<%- cart_arr[i].image %> width="150" height="150" alt="checker">
+                    </div>
+                    <div class="card__content">
+                        <h2 class="product__price">$
+                             <%- cart_arr[i].price %>
+                        </h2>
+                        <p class="product__description">Quantity Ordered:
+                            <%- cart_arr[i].quantity %>
+                        </p>
+                    </div>
+                </article>
+               <% } %>
+            <% } %>
+           </div>
+         <div>
+         <% if (cart_arr.length!=0) { %>
+	 <form action="/orders" method="post">
+        	<button class="buy_btn" type="submit">Buy</button>
+	 </form>
+	 <% } else { %>
+         	<h2 class="info">NO ITEMS IN CART!</h2>
+     	 <% } %>
+	 </div>
+</main>
+<%- include('end.ejs') %>

@@ -1,0 +1,40 @@
+<%- include('head.ejs') %>
+<link rel="stylesheet" href="/css/forms.css">
+<link rel="stylesheet" href="/css/product.css">
+</head>
+
+<body>
+
+<%- include('navigation.ejs') %>
+
+<main>    
+        <div class="grid">
+            
+            <%for(var i=0;i< prod_arr.length;i++){ %>
+                <article class="card product-item">
+                    <header class="card__header">
+                        <h1 class="product__title">
+                            <%= prod_arr[i].title %>
+                        </h1>
+                    </header>
+                    <div class="card__image">
+                        <img src=<%= prod_arr[i].image %> width="50" height="150" alt="checker">
+                    </div>
+                    <div class="card__content">
+                        <h2 class="product__price">$
+                            <%= prod_arr[i].price %>
+                        </h2>
+                        <p class="product__description">Qt Ord:
+                            <%= prod_arr[i].quantity %>
+                        </p>
+                    </div>
+                    <form action="/cart" method="post">
+                        <button class="btn" type="submit">Add to Cart</button>
+                        <input type="hidden" name="product_id" value=<%= prod_arr[i].id %> >
+                    </form>
+                </article>
+            <% } %>
+
+</main>
+
+<%- include('end.ejs') %>

@@ -1,0 +1,36 @@
+<%- include('head.ejs') %>
+<link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+<%- include('navigation.ejs') %>
+
+<main>    
+        <div class="grid">
+            
+            <%for(var i = 0; i<orders.length; i++){ %>
+                <article class="card product-item">
+                    <header class="card__header">
+                        <h1 class="product__title">
+				<%- orders[i].title %>
+                        </h1>
+                    </header>
+                    <div class="card__image">
+                        <img src=<%- orders[i].image %> width="50" height="150" alt="checker">
+                    </div>
+                    <div class="card__content">
+                        <h2 class="product__price">$
+				<%- orders[i].price %>
+                        </h2>
+                        <p class="product__description">Quantity Bought:
+				<%- orders[i].quantity %>
+                        </p>
+                    </div>
+                </article>
+            <% } %>
+            <% if (orders.length==0) { %>
+         	<h2 class="info">NO ORDERS YET!</h2>
+     	 <% } %>
+
+</main>
+<%- include('end.ejs') %>
