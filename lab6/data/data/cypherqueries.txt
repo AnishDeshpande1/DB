@@ -1,0 +1,46 @@
+a)
+MATCH (u:User)-[:Sent]->(t:Tweet)-[:Mentions]->(v:User) WHERE u.name = v.name RETURN u ORDER BY u.name;
+
+
+b)
+MATCH (t:Tweet)-[:Contains]->(h:Hashtag) WHERE t.text STARTS WITH 'we' AND h.tag = 'proud' RETURN t.text;
+
+c)
+MATCH (u:User{name:"Jessica"})-[:Sent]->(t:Tweet),(u2:User)-[:Sent]->(t) WHERE NOT exists((t)-[:Contains]->(:Hashtag)) AND NOT u2.name="Jessica" RETURN u2.name, t.text;
+
+d)
+MATCH (u:User{name:"Jessica"})-[:Sent]->(t:Tweet),(u2:User)-[:Sent]->(t) WHERE NOT exists((t)-[:Contains]->(:Hashtag)) AND NOT u2.name="Jessica" AND NOT exists((u2)-[:Follows]->(u)) RETURN u2.name, t.text;
+
+e)
+MATCH (u1:User)-[:Follows]->(u2:User) WITH u2,collect(u2.name) as lis RETURN u2.name,size(lis) as num_followers ORDER BY num_followers DESC,u2.name LIMIT 5; 
+
+f)
+MATCH p = shortestpath((u:User {name:"Ashley"})-[:Follows*]->(u2:User)) WHERE u2.name <> "Ashley"  WITH u2,length(p) as nh RETURN nh ORDER BY nh DESC LIMIT 1;
+
+g)
+MATCH (u1:User)-[:Follows]->(u2:User),(u:User {name:"Thomas"})-[:Follows]->(u2) WHERE u1.name <> "Thomas" WITH u1,collect(u2) as lis RETURN u1.name,size(lis) as n ORDER BY n DESC,u1.name LIMIT 5;
+
+h)
+MATCH (t:Tweet)-[:Mentions]->(u:User), (v:User)-[:Sent]->(t) WHERE u.name <> v.name AND NOT exists((v)-[:Follows]->(u)) RETURN v.name,u.name,t.text ORDER BY v.name,u.name;
+
+i)
+MATCH (u:User {name:"Thomas"})-[:Sent]->(t:Tweet)-[:Contains]->(h:Hashtag) MATCH (v:User)-[:Sent]->(t1:Tweet)-[:Contains]->(h) WHERE v.name <> "Thomas" RETURN DISTINCT v.name ORDER BY v.name;
+
+j)
+CALL{
+	MATCH (u1: User)-[:Follows]->(u2: User),(u:User {name:"Thomas"})-[:Follows]->(u2)
+	return u1, count(*) as num
+	order by num desc,u1.name
+	limit 5
+}
+WITH u1, num
+MATCH (u1)-[:Follows]->(v: User)
+RETURN v.name, count(*)
+ORDER BY count(*) DESC
+LIMIT 2;
+
+
+
+
+
+
