@@ -1,0 +1,121 @@
+ANISH DESHPANDE 180100013
+CS387 Progress Quiz 1
+
+I, Anish Deshpande, declare that I have answered the quiz honestly and without the help of anyone else. I also declare that I have referred only to materials from CS 317 and CS 387 apart from the postgres help site for the meaning of SQL constructs. I understand that the penalty of not conforming to this policy could result in a fail grade for the course. I am willing to give a viva if so requested to clarify the answers to my questions.
+
+
+Q1
+
+select * from venues where  venueid in (1,5);
+
+Q2
+
+select userid, familyname, givenname, dateofjoining from users 
+where date_part('year',dateofjoining) > 2019 OR 
+(date_part('year',dateofjoining) = 2019 AND date_part('month',dateofjoining) > 8);
+
+Q3
+
+select venueid, name, usercost, monthlymaintenance
+from venues
+where usercost > 0 AND usercost*1.0 < (1.0*monthlymaintenance)/50;
+
+Q4
+
+select distinct familyname from users 
+ORDER BY familyname
+LIMIT 10;
+
+Q5
+
+(select familyname from users)
+UNION
+(select name from venues);
+
+Q6
+
+select starttime from
+users inner join reservations on users.userid = reservations.userid
+WHERE
+familyname = 'Patel' AND givenname = 'Ram';
+
+Q7
+
+select distinct u1.givenname, u1.familyname
+from users as u1 inner join users as u2 on u1.userid<>u2.userid
+where u2.recommender = u1.userid
+order by u1.familyname, u1.givenname;
+
+Q8
+
+select  distinct givenname || ' ' || familyname as fullname, venues.name 
+from users natural join venues natural join reservations
+WHERE 
+venues.venueid <= 1
+ORDER BY fullname, venues.name;
+
+Q9
+
+select max(dateofjoining)
+from users;
+
+Q10
+
+with slots_per_venue(venueid, numslots) as
+(select venueid, sum(slots)
+from reservations
+group by venueid
+order by venueid),
+anstable(venueid,name,hours) as
+(select venueid,name,cast(numslots*0.5 as decimal(6,2))
+from venues natural join slots_per_venue)
+select venueid,name,to_char(hours, '999.99') as hours from anstable;
+
+Q11
+
+with
+recommenders(userid) as
+(select u1.userid
+from users as u1 inner join users as u2 on u1.userid<>u2.userid
+where u2.recommender = u1.userid
+order by userid)
+select userid,count(*) as countofrecs from recommenders
+group by userid
+order by userid;
+
+
+Q12
+
+with user_slots_per_venue(venueid, numslots) as
+(select venueid, sum(slots)
+from reservations
+where userid <> 0
+group by venueid
+order by venueid),
+user_revenue_per_venue(venueid,urevenue) as
+(select venueid, (numslots)*(usercost)
+from venues natural join user_slots_per_venue),
+guest_slots_per_venue(venueid, numslots) as
+(select venueid, sum(slots)
+from reservations
+where userid = 0
+group by venueid
+order by venueid),
+guest_revenue_per_venue(venueid,grevenue) as
+(select venueid, (numslots)*(guestcost)
+from venues natural join guest_slots_per_venue),
+tot_rev_per_venue(venueid,totrev) as
+(select venueid,(urevenue+grevenue)from user_revenue_per_venue natural join guest_revenue_per_venue)
+select name,totrev
+from venues natural join tot_rev_per_venue
+order by totrev DESC,name ASC
+LIMIT 3;
+
+
+Q13
+
+update venues 
+set 
+usercost = 1.1*(select V2.usercost from venues V2 where V2.venueid=0),
+guestcost = 1.1*(select V2.guestcost from venues V2 where V2.venueid=0)
+where venueid=1;
