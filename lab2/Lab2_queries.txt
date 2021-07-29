@@ -1,0 +1,171 @@
+
+#######################INLAB QUERIES#######################
+    Find names of all instructors who earn more than 60000. Do not eliminate duplicates.
+
+    Find course_id of all courses taught in Spring 2006
+
+    Find course_id and title of all courses taught in Spring 2009
+
+    Find IDs and names of all students who have taken a course in the 'Comp. Sci.' department as well as a course in the 'Biology' department  (not necessarily in the same semester).  Eliminate duplicates.
+
+    As in the previous question, but now ensure that the courses are taken in the same year and semester. Eliminate duplicates.
+
+SELECT name from instructor where salary>60000;
+
+SELECT course_id FROM section WHERE semester = 'Spring' AND year = 2006;
+
+SELECT section.course_id, title FROM course, section WHERE course.course_id = section.course_id AND year = 2009 AND semester = 'Spring';
+
+SELECT DISTINCT student.ID,student.name FROM student,takes as T1 ,takes as T2, course as C1, course as C2 WHERE T1.ID = student.ID AND T2.ID = student.ID AND T1.course_id = C1.course_id AND T2.course_id = C2.course_id AND C1.dept_name = 'Biology' AND C2.dept_name = 'Comp. Sci.';
+
+SELECT DISTINCT student.id, student.name FROM student, takes as T1, takes as T2, course as C1, course as C2
+WHERE student.id = T1.id AND 
+student.id = T2.id AND 
+T1.course_id = C1.course_id AND 
+C1.dept_name = 'Comp. Sci.' AND 
+T2.course_id = C2.course_id AND 
+C2.dept_name = 'Biology' AND 
+T1.semester = T2.semester AND 
+T1.year = T2.year;
+
+###################OUTLAB QUERIES#############################
+
+Find names of all students whose total credits exceed 50. Do not eliminate duplicate names.
+
+SELECT name
+FROM student
+WHERE tot_cred > 50;
+
+Find ID and names of all instructors belonging to either Comp. Sci. or Finance department whose salary is less than 85000. Output in the descending order of salary.
+
+SELECT ID,name
+FROM instructor
+WHERE (dept_name='Comp. Sci.' OR dept_name='Finance')
+AND salary < 85000
+ORDER BY salary DESC;
+
+Find course_id, title, semester, year, building and room number of all courses running in a room with capacity of at least 50.
+
+SELECT DISTINCT section.course_id, course.title, section.semester, section.year, section.building, section.room_number
+FROM classroom,section,course
+WHERE classroom.capacity >= 50
+AND classroom.room_number = section.room_number
+AND classroom.building = section.building
+AND section.course_id = course.course_id;
+
+Find the name of students and course_id of the courses they have taken in Fall 2009.#ACTUALLY 2006
+
+SELECT student.name,section.course_id
+FROM student,section,takes
+WHERE takes.ID = student.ID
+AND takes.course_id = section.course_id
+AND section.semester = 'Fall' 
+AND section.year = 2006;
+
+Find ID and names of all students who have never got an F grade.
+
+(SELECT student.ID, student.name
+FROM student,takes
+WHERE student.ID = takes.ID)
+EXCEPT
+(SELECT student.ID, student.name
+FROM student,takes
+WHERE student.ID = takes.ID
+AND takes.grade = 'F');
+
+Find ID and names of all students in lexicographical order of name who have taken a course in Comp. Sci. or Physics department.
+
+####WITHOUT INNER JOIN/NATURAL JOIN########
+SELECT student.ID, student.name
+FROM student,takes,course
+WHERE student.ID = takes.ID AND
+takes.course_id = course.course_id AND
+(course.dept_name = 'Physics' OR
+ course.dept_name = 'Comp. Sci.')
+ORDER BY student.name ASC;
+
+#####WITH INNER JOIN/NATURAL JOIN##########
+
+Find course_id and titles of all courses that have never run in the morning hours (i.e. started before 12 00).
+
+(SELECT course.course_id,course.title
+FROM course,section,time_slot
+WHERE course.course_id = section.course_id AND
+section.time_slot_id = time_slot.time_slot_id)
+EXCEPT
+(SELECT course.course_id,course.title
+FROM course,section,time_slot
+WHERE course.course_id = section.course_id AND
+section.time_slot_id = time_slot.time_slot_id AND
+time_slot.start_hr < 12);
+
+Find IDs and names of all instructors who teach a course in Spring 2009 as well as Spring 2010.
+
+SELECT instructor.ID,instructor.name
+FROM instructor,teaches as T1,teaches as T2
+WHERE instructor.ID = T1.ID AND
+instructor.ID = T2.ID AND
+T1.semester = 'Spring' AND
+T1.year = 2009 AND
+T2.semester = 'Spring' AND
+T1.year = 2010;
+
+Find course_id and titles in lexicographical order of course_id of all courses who have prereqs. Limit the output to 5 courses.
+
+SELECT course.course_id,course.title
+FROM course,prereq
+WHERE course.course_id = prereq.course_id
+ORDER BY course.course_id ASC 
+LIMIT 5;
+
+Find ID and names of all instructors and students whose department is in Taylor building.
+
+(SELECT instructor.ID,instructor.name
+FROM instructor,department
+WHERE instructor.dept_name = department.dept_name AND
+department.building = 'Taylor')
+UNION
+(SELECT student.ID,student.name
+FROM student,department
+WHERE student.dept_name = department.dept_name AND
+department.building = 'Taylor');
+
+Find ID and names of all students who have taken at least one course in Spring 2010 and no course ends after 13:00.
+
+(SELECT student.ID, student.name
+FROM student,section,takes,time_slot
+WHERE section.semester = 'Spring' AND
+section.year = 2010 AND
+student.ID = takes.ID AND
+takes.course_id = section.course_id)
+EXCEPT
+(SELECT student.ID,student.name
+FROM student,time_slot,section,takes
+WHERE section.semester = 'Spring' AND
+section.year = 2010 AND 
+student.ID = takes.ID AND
+takes.course_id = section.course_id AND
+section.time_slot_id = time_slot.time_slot_id AND
+time_slot.end_hr > 13);
+
+
+Find IDs of all student, advisor pairs where the student has taken a course under advisor.  
+
+SELECT DISTINCT advisor.s_ID,advisor.i_ID
+FROM advisor,takes,teaches
+WHERE advisor.s_ID = takes.ID AND
+advisor.i_ID = teaches.ID AND
+takes.course_id = teaches.course_id;
+
+Find ID and names of all instructors who teach a course on Wednesday as well as Friday.
+
+SELECT DISTINCT instructor.ID,instructor.name
+FROM instructor,teaches T1,teaches T2,section S1,section S2,time_slot TS1, time_slot TS2
+WHERE instructor.ID = T1.ID AND
+instructor.ID = T2.ID AND
+T1.course_id = S1.course_id AND
+T2.course_id = S2.course_id AND
+S1.time_slot_id = TS1.time_slot_id AND
+S2.time_slot_id = TS2.time_slot_id AND
+TS1.day = 'W' AND
+TS2.day = 'F';

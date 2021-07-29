@@ -1,0 +1,18 @@
+SELECT name from instructor where salary>60000;
+
+SELECT course_id FROM section WHERE semester = 'Spring' AND year = 2006;
+
+SELECT section.course_id, title FROM course, section WHERE course.course_id = section.course_id AND year = 2009 AND semester = 'Spring';
+
+SELECT DISTINCT student.ID,student.name FROM student,takes as T1 ,takes as T2, course as C1, course as C2 WHERE T1.ID = student.ID AND T2.ID = student.ID AND T1.course_id = C1.course_id AND T2.course_id = C2.course_id AND C1.dept_name = 'Biology' AND C2.dept_name = 'Comp. Sci.';
+
+SELECT DISTINCT student.id, student.name FROM student, takes as T1, takes as T2, course as C1, course as C2
+WHERE student.id = T1.id AND 
+student.id = T2.id AND 
+T1.course_id = C1.course_id AND 
+C1.dept_name = 'Comp. Sci.' AND 
+T2.course_id = C2.course_id AND 
+C2.dept_name = 'Biology' AND 
+T1.semester = T2.semester AND 
+T1.year = T2.year;
+
